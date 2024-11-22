@@ -1,4 +1,4 @@
-import POJO.User;
+import models.User;
 
 import java.util.Random;
 
@@ -22,6 +22,11 @@ public class RandomGenerator {
         return new User()
                 .setEmail(randomString(8) + "@yandex.ru")
                 .setPassword(randomString(10))
+                .setName(randomString(6));
+    }
+    public static User randomUserData() {
+        return new User()
+                .setEmail(randomString(8) + "@yandex.ru")
                 .setName(randomString(6));
     }
 

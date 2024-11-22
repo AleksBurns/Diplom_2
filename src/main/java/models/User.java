@@ -1,4 +1,4 @@
-package POJO;
+package models;
 
 public class User {
 
@@ -9,6 +9,10 @@ public class User {
     public User(String email, String password, String name) {
         this.email = email;
         this.password = password;
+        this.name = name;
+    }
+    public User(String email, String name) {
+        this.email = email;
         this.name = name;
     }
 
@@ -39,10 +43,15 @@ public class User {
     }
 
 
+
     private String accessToken;
 
+    public User setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+        return this;
+    }
     public String getAccessToken() {
         return accessToken;
     }
-}
 
+}
