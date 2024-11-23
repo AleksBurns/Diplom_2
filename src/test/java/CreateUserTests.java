@@ -8,7 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import steps.UserSteps;
-import static constants.URI.*;
+import static constants.IApiRoutes.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -16,7 +16,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
  * создать уникального пользователя;
  * создать пользователя, который уже зарегистрирован;
  * создать пользователя и не заполнить одно из обязательных полей.
- */ 
+ */
 
 public class CreateUserTests extends UserSteps{
 
@@ -25,14 +25,15 @@ public class CreateUserTests extends UserSteps{
     User userWithoutEmail = RandomGenerator.randomUserWithoutEmail();
     User userWithoutPassword = RandomGenerator.randomUserWithoutPassword();
     User userWithoutName = RandomGenerator.randomUserWithoutName();
+    private User CreatedUser;
 
-@Before
-public void setUp(){
+    @Before
+    public void setUp(){
     RestAssured.baseURI = BASE_URI;
 }
 
     @Step("Проверка тела ответа при попытке создания зарегистрированного пользователя")
-    public void userAlreadyExist(Response response){
+    public void isUserAlreadyExist(Response response){
     response.then().assertThat().body("success", equalTo(false))
             .and().body("message", equalTo("User already exists"));
     }
@@ -47,24 +48,24 @@ public void setUp(){
     @DisplayName("Тест: Создание уникального пользователя")
     @Description("Можно создать пользователя, ранее не зарегистрированного в системе")
     public void checkCreateUser(){
-        Response originalUser = createUser(newUser);
-        setToken(originalUser);
-        statusCode200(originalUser);
-        responseBodyUserData(originalUser, newUser);
+        Response createdUserResponse = createUser(newUser);
+        CreatedUser = createdUserResponse.as(User.class);
+        ensureStatusCode200(createdUserResponse);
+        ensureAttributes(createdUserResponse, newUser);
     }
 
     @Test
     @DisplayName("Тест: Создание пользователя без заполнения обязательного поля")
     @Description("Нельзя создать пользователя, не заполнив все обязательные поля")
     public void checkRequiredFields(){
-        Response requestWithoutEmail = createUser(userWithoutEmail);
-        statusCode403(requestWithoutEmail);
-        requiredFields(requestWithoutEmail);
+        Response createdUserResponse = createUser(userWithoutEmail);
+        ensureStatusCode403(createdUserResponse);
+        requiredFields(createdUserResponse);
         Response requestWithoutPassword = createUser(userWithoutPassword);
-        statusCode403(requestWithoutPassword);
+        ensureStatusCode403(requestWithoutPassword);
         requiredFields(requestWithoutPassword);
         Response requestWithoutName = createUser(userWithoutName);
-        statusCode403(requestWithoutName);
+        ensureStatusCode403(requestWithoutName);
         requiredFields(requestWithoutName);
     }
 
@@ -72,17 +73,17 @@ public void setUp(){
     @DisplayName("Тест: Создание пользователя, ранее зарегистрированного в системе ")
     @Description("Нельзя повторно создать уже зарегистрированного пользователя")
     public void checkDuplicateUser(){
-    Response originalUser = createUser(newUser);
-    setToken(originalUser);
+    Response createdUserResponse = createUser(newUser);
+    CreatedUser = createdUserResponse.as(User.class);
     Response duplicateUser = createUser(newUser);
-    statusCode403(duplicateUser);
-    userAlreadyExist(duplicateUser);
+    ensureStatusCode403(duplicateUser);
+    isUserAlreadyExist(duplicateUser);
     }
 
     @After
     @DisplayName("Удаление тестового пользователя")
     @Description("Тестовый пользователь должен быть удалён после теста")
     public void deleteUserAfterTest(){
-       deleteUser();
+       deleteUser(CreatedUser);
     }
 }

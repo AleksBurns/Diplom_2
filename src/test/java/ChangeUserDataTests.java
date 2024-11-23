@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import steps.UserSteps;
 
-import static constants.URI.*;
+import static constants.IApiRoutes.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 
@@ -21,9 +21,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
  */
 
 public class ChangeUserDataTests extends UserSteps {
-    User newUser = RandomGenerator.randomUser();
+    User originalUser = RandomGenerator.randomUser();
     User newUserData = RandomGenerator.randomUserData();
-    User token;
+    private User CreatedUser;
 
 
     @Before
@@ -32,22 +32,16 @@ public class ChangeUserDataTests extends UserSteps {
     }
 
     @Step("Передача новых данных о пользователе с авторизацией")
-    public Response setNewUserDataWithAuth(User userData, User token){
+    public Response setNewUserDataWithAuth(User user){
         Response response;
         response = given()
                 .header("Content-type", "application/json")
                 .auth()
-                .oauth2(token.getAccessToken().replace("Bearer ", ""))
-                .body(userData)
+                .oauth2(user.getAccessToken().replace("Bearer ", ""))
+                .body(user)
                 .when()
-                .patch(USER);
+                .patch(USER_ROUTE);
         return response;
-    }
-
-    @Step("Присвоение токена и вывод его в консоль")
-    public void setToken2(Response response){
-        token = response.as(User.class);
-        System.out.println("\nAccess Token: \n" + token.getAccessToken());
     }
 
     @Step("Передача новых данных о пользователе без авторизации")
@@ -57,7 +51,7 @@ public class ChangeUserDataTests extends UserSteps {
                 .header("Content-type", "application/json")
                 .body(user)
                 .when()
-                .patch(USER);
+                .patch(USER_ROUTE);
         return response;
     }
 
@@ -70,32 +64,34 @@ public class ChangeUserDataTests extends UserSteps {
     @Test
     @DisplayName("Тест: Изменение данных пользователя с авторизацией")
     public void checkChangeUserDataWithAuth(){
-        Response originalUser = createUser(newUser);
-        setToken2(originalUser);
-        responseBodyUserData(originalUser, newUser);
-        Response modifiedUser = setNewUserDataWithAuth(newUserData, token);
-        statusCode200(modifiedUser);
-        responseBodyUserData(modifiedUser, newUserData);
+        Response createdUserResponse = createUser(originalUser);
+        CreatedUser = createdUserResponse.as(User.class);
+        ensureAttributes(createdUserResponse, originalUser);
+        newUserData.setAccessToken(CreatedUser.getAccessToken());
+        Response modifiedUserResponse = setNewUserDataWithAuth(newUserData);
+        ensureStatusCode200(modifiedUserResponse);
+        ensureAttributes(modifiedUserResponse, newUserData);
     }
     @Test
     @DisplayName("Тест: Изменение данных пользователя без авторизации")
     public void checkChangeUserDataWithoutAuth(){
-        Response originalUser = createUser(newUser);
-        setToken(originalUser);
-        responseBodyUserData(originalUser, newUser);
+        Response createdUserResponse = createUser(originalUser);
+        CreatedUser = createdUserResponse.as(User.class);
+        ensureAttributes(createdUserResponse, originalUser);
+        newUserData.setAccessToken(CreatedUser.getAccessToken());
         Response modifiedUser = setNewUserDataWithoutAuth(newUserData);
-        statusCode401(modifiedUser);
+        ensureStatusCode401(modifiedUser);
         responseBodySetNewUserDataWithoutAuth(modifiedUser);
     }
 
     @Test
     public void checkGetUserData(){
-        Response originalUser = createUser(newUser);
-        setToken(originalUser);
+        Response createdUserResponse = createUser(originalUser);
+        CreatedUser = createdUserResponse.as(User.class);
     }
 
     @After
     public void deleteUserAfterTest(){
-    deleteUser();
+    deleteUser(CreatedUser);
     }
 }
