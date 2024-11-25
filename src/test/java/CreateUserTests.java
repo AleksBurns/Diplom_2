@@ -1,15 +1,13 @@
 import models.User;
 import io.qameta.allure.Description;
-import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import steps.UserSteps;
+
 import static constants.IApiRoutes.*;
-import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * Создание пользователя:
@@ -18,38 +16,24 @@ import static org.hamcrest.CoreMatchers.equalTo;
  * создать пользователя и не заполнить одно из обязательных полей.
  */
 
-public class CreateUserTests extends UserSteps{
+public class CreateUserTests extends Steps {
 
     User newUser = RandomGenerator.randomUser();
-
     User userWithoutEmail = RandomGenerator.randomUserWithoutEmail();
     User userWithoutPassword = RandomGenerator.randomUserWithoutPassword();
     User userWithoutName = RandomGenerator.randomUserWithoutName();
-    private User CreatedUser;
 
     @Before
     public void setUp(){
     RestAssured.baseURI = BASE_URI;
 }
 
-    @Step("Проверка тела ответа при попытке создания зарегистрированного пользователя")
-    public void isUserAlreadyExist(Response response){
-    response.then().assertThat().body("success", equalTo(false))
-            .and().body("message", equalTo("User already exists"));
-    }
-
-    @Step("Проверка тела ответа при незаполнении обязательного поля")
-    public void requiredFields(Response response){
-    response.then().assertThat().body("success", equalTo(false))
-            .and().body("message", equalTo("Email, password and name are required fields"));
-    }
-
     @Test
     @DisplayName("Тест: Создание уникального пользователя")
     @Description("Можно создать пользователя, ранее не зарегистрированного в системе")
     public void checkCreateUser(){
         Response createdUserResponse = createUser(newUser);
-        CreatedUser = createdUserResponse.as(User.class);
+        setTokenToCreatedUser(createdUserResponse,newUser);
         ensureStatusCode200(createdUserResponse);
         ensureAttributes(createdUserResponse, newUser);
     }
@@ -60,13 +44,13 @@ public class CreateUserTests extends UserSteps{
     public void checkRequiredFields(){
         Response createdUserResponse = createUser(userWithoutEmail);
         ensureStatusCode403(createdUserResponse);
-        requiredFields(createdUserResponse);
+        requiredFieldEmptyResponse(createdUserResponse);
         Response requestWithoutPassword = createUser(userWithoutPassword);
         ensureStatusCode403(requestWithoutPassword);
-        requiredFields(requestWithoutPassword);
+        requiredFieldEmptyResponse(requestWithoutPassword);
         Response requestWithoutName = createUser(userWithoutName);
         ensureStatusCode403(requestWithoutName);
-        requiredFields(requestWithoutName);
+        requiredFieldEmptyResponse(requestWithoutName);
     }
 
     @Test
@@ -74,16 +58,16 @@ public class CreateUserTests extends UserSteps{
     @Description("Нельзя повторно создать уже зарегистрированного пользователя")
     public void checkDuplicateUser(){
     Response createdUserResponse = createUser(newUser);
-    CreatedUser = createdUserResponse.as(User.class);
+    setTokenToCreatedUser(createdUserResponse, newUser);
     Response duplicateUser = createUser(newUser);
     ensureStatusCode403(duplicateUser);
-    isUserAlreadyExist(duplicateUser);
+    userAlreadyExistResponse(duplicateUser);
     }
 
     @After
     @DisplayName("Удаление тестового пользователя")
     @Description("Тестовый пользователь должен быть удалён после теста")
     public void deleteUserAfterTest(){
-       deleteUser(CreatedUser);
+       deleteUser(newUser);
     }
 }

@@ -1,3 +1,4 @@
+import models.Ingredient;
 import models.User;
 
 import java.util.Random;
@@ -25,27 +26,30 @@ public class RandomGenerator {
                 .setName(randomString(6));
     }
     public static User randomUserData() {
-        return new User()
-                .setEmail(randomString(8) + "@yandex.ru")
-                .setName(randomString(6));
+        return new User(
+                randomString(8) + "@yandex.ru",
+                randomString(6));
     }
 
     public static User randomUserWithoutEmail() {
         return new User(
                 null,
-                RandomGenerator.randomString(10),
-                RandomGenerator.randomString(6));
+                randomString(10),
+                randomString(6));
     }
     public static User randomUserWithoutPassword() {
         return new User(
-                RandomGenerator.randomString(8) + "@yandex.ru",
+                randomString(8) + "@yandex.ru",
                 null,
-                RandomGenerator.randomString(6));
+                randomString(6));
     }
     public static User randomUserWithoutName() {
         return new User(
-                RandomGenerator.randomString(8) + "@yandex.ru",
-                RandomGenerator.randomString(10),
+                randomString(8) + "@yandex.ru",
+                randomString(10),
                 null);
+    }
+    public static void randomIngredientId(){
+        randomString(24);
     }
 }

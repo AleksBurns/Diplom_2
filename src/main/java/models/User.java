@@ -52,11 +52,10 @@ public class User {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
-        System.out.println("Access token: " + accessToken);
+        System.out.println("Access token: \n" + accessToken);
     }
 
     public String getAccessToken() {
         return accessToken;
     }
-
 }
