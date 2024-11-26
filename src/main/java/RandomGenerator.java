@@ -1,4 +1,3 @@
-import models.Ingredient;
 import models.User;
 
 import java.util.Random;
