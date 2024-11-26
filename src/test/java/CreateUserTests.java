@@ -30,17 +30,28 @@ public class CreateUserTests extends Steps {
 
     @Test
     @DisplayName("Тест: Создание уникального пользователя")
-    @Description("Можно создать пользователя, ранее не зарегистрированного в системе")
+    @Description("Можно создать пользователя, ранее не зарегистрированного в системе, код ответа 200, в теле ответа корректные данные")
     public void checkCreateUser(){
         Response createdUserResponse = createUser(newUser);
         setTokenToCreatedUser(createdUserResponse,newUser);
         ensureStatusCode200(createdUserResponse);
-        ensureAttributes(createdUserResponse, newUser);
+        ensureUserAttributesInResponseBody(createdUserResponse, newUser);
+    }
+
+    @Test
+    @DisplayName("Тест: Создание пользователя, ранее зарегистрированного в системе ")
+    @Description("Нельзя повторно создать уже зарегистрированного пользователя, код ответа 403 и в теле ошибка: User already exists")
+    public void checkDuplicateUser(){
+        Response createdUserResponse = createUser(newUser);
+        setTokenToCreatedUser(createdUserResponse, newUser);
+        Response duplicateUser = createUser(newUser);
+        ensureStatusCode403(duplicateUser);
+        userAlreadyExistResponse(duplicateUser);
     }
 
     @Test
     @DisplayName("Тест: Создание пользователя без заполнения обязательного поля")
-    @Description("Нельзя создать пользователя, не заполнив все обязательные поля")
+    @Description("Нельзя создать пользователя, не заполнив все обязательные поля, код ответа 403, в теле ошибка: Email, password and name are required fields")
     public void checkRequiredFields(){
         Response createdUserResponse = createUser(userWithoutEmail);
         ensureStatusCode403(createdUserResponse);
@@ -51,17 +62,6 @@ public class CreateUserTests extends Steps {
         Response requestWithoutName = createUser(userWithoutName);
         ensureStatusCode403(requestWithoutName);
         requiredFieldEmptyResponse(requestWithoutName);
-    }
-
-    @Test
-    @DisplayName("Тест: Создание пользователя, ранее зарегистрированного в системе ")
-    @Description("Нельзя повторно создать уже зарегистрированного пользователя")
-    public void checkDuplicateUser(){
-    Response createdUserResponse = createUser(newUser);
-    setTokenToCreatedUser(createdUserResponse, newUser);
-    Response duplicateUser = createUser(newUser);
-    ensureStatusCode403(duplicateUser);
-    userAlreadyExistResponse(duplicateUser);
     }
 
     @After

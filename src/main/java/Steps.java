@@ -7,7 +7,7 @@ import models.User;
 import static constants.IApiRoutes.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
-
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class Steps {
 
@@ -57,10 +57,24 @@ public class Steps {
     }
 
     @Step("Проверка данных о пользователе в теле ответа с авторизацией")
-    public void ensureAttributes(Response response, User user) {
+    public void ensureUserAttributesInResponseBody(Response response, User createdUser){
         response.then().assertThat().body("success", equalTo(true))
-                .and().body("user.email", equalTo(user.getEmail()))
-                .and().body("user.name", equalTo(user.getName()));
+                .and().body("user.email", equalTo(createdUser.getEmail()))
+                .and().body("user.name", equalTo(createdUser.getName()));
+    }
+
+    @Step("Логин пользователя")
+    public Response userLogin(User createdUser){
+        return given()
+                .header("Content-type", "application/json")
+                .body(createdUser)
+                .post(USER_LOGIN_ROUTE);
+    }
+
+    @Step("Проверка ошибки в теле ответа при логине с некорректными данными")
+    public void incorrectLoginDataResponse(Response response){
+        response.then().assertThat().body("success", equalTo(false))
+                .and().body("message", equalTo("email or password are incorrect"));
     }
 
     @Step("Передача новых данных о пользователе с авторизацией")
@@ -87,8 +101,8 @@ public class Steps {
         return response;
     }
 
-    @Step("Проверка тела ответа при изменении данных без авторизации")
-    public void responseBodySetNewUserDataWithoutAuth(Response response){
+    @Step("Проверка тела ответа с ошибкой авторизации")
+    public void responseBodyAuthError(Response response){
         response.then().assertThat().body("success", equalTo(false))
                 .and().body("message", equalTo("You should be authorised"));
     }
@@ -99,7 +113,14 @@ public class Steps {
                 .header("Content-type", "Application/json")
                 .auth().oauth2(createdUser.getAccessToken().replace("Bearer ", ""))
                 .body(order)
-                .post(IApiRoutes.ORDERS_ROUTE);
+                .post(ORDERS_ROUTE);
+    }
+
+    @Step("Проверка тела ответа нового заказа")
+    public void ensureResponseBodyNewOrder(Response response) {
+        response.then().assertThat()
+                .body("success", equalTo(true))
+                .and().body("order", notNullValue());
     }
 
     @Step("Создание заказа без авторизации")
@@ -110,6 +131,31 @@ public class Steps {
                 .post(IApiRoutes.ORDERS_ROUTE);
     }
 
+    @Step("Проверка ошибки тела ответа при создании заказа без ингредиентов")
+    public void  emptyIngredientsResponse(Response response){
+        response.then().assertThat().body("success", equalTo(false))
+                .and().body("message", equalTo("Ingredient ids must be provided"));
+    }
+
+    @Step("Запрос заказов пользователя с авторизацией")
+    public Response getUserOrdersWithAuth(User createdUser){
+        return given()
+                .auth().oauth2(createdUser.getAccessToken().replace("Bearer ", ""))
+                .get(ORDERS_ROUTE);
+    }
+
+    @Step("Проверка тела ответа заказов пользователя")
+    public void ensureResponseBodyUserOrders(Response response) {
+        response.then().assertThat()
+                .body("success", equalTo(true))
+                .and().body("orders", notNullValue());
+    }
+
+    @Step("Запрос заказов пользователя без авторизации")
+    public Response getUserOrdersWithoutAuth(){
+        return given()
+                .get(ORDERS_ROUTE);
+    }
 
     @Step("Проверка кода ответа 200")
     public void ensureStatusCode200(Response response) {
