@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
 
-import static constants.IApiRoutes.*;
+import static constants.Routes.*;
 /**
  * Получение заказов конкретного пользователя:
  * авторизованный пользователь,

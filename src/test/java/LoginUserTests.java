@@ -7,7 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static constants.IApiRoutes.*;
+import static constants.Routes.*;
 
 /**
  * Логин пользователя:

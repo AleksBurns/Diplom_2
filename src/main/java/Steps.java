@@ -1,10 +1,10 @@
-import constants.IApiRoutes;
+import constants.Routes;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import models.Order;
 import models.User;
 
-import static constants.IApiRoutes.*;
+import static constants.Routes.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -128,7 +128,7 @@ public class Steps {
         return given()
                 .header("Content-type", "Application/json")
                 .body(order)
-                .post(IApiRoutes.ORDERS_ROUTE);
+                .post(Routes.ORDERS_ROUTE);
     }
 
     @Step("Проверка ошибки тела ответа при создании заказа без ингредиентов")

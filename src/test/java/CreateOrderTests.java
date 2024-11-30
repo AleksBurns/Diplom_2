@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
 
-import static constants.IApiRoutes.BASE_URI;
+import static constants.Routes.BASE_URI;
 /**
  * Создание заказа:
  * с авторизацией,
@@ -22,7 +22,7 @@ import static constants.IApiRoutes.BASE_URI;
 public class CreateOrderTests extends Steps {
     User newUser = RandomGenerator.randomUser();
     private final List<String> validIngredients = List.of("61c0c5a71d1f82001bdaaa72", "61c0c5a71d1f82001bdaaa6e");
-    private final List<String> invalidIngredients = List.of(RandomGenerator.randomString(24), RandomGenerator.randomString(24));
+    private final List<String> invalidIngredients = RandomGenerator.randomIngredientsList();
     private final List<String> emptyIngredients = List.of();
 
     Order newOrderWithValidIng = new Order(validIngredients);
