@@ -2,6 +2,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import models.Ingredient;
 import models.Order;
 import models.User;
 import org.junit.After;
@@ -9,7 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
 
-import static constants.IApiRoutes.BASE_URI;
+import static constants.Routes.BASE_URI;
+
 /**
  * Создание заказа:
  * с авторизацией,
@@ -21,13 +23,12 @@ import static constants.IApiRoutes.BASE_URI;
 
 public class CreateOrderTests extends Steps {
     User newUser = RandomGenerator.randomUser();
-    private final List<String> validIngredients = List.of("61c0c5a71d1f82001bdaaa72", "61c0c5a71d1f82001bdaaa6e");
-    private final List<String> invalidIngredients = List.of(RandomGenerator.randomString(24), RandomGenerator.randomString(24));
-    private final List<String> emptyIngredients = List.of();
 
-    Order newOrderWithValidIng = new Order(validIngredients);
-    Order newOrderWithInvalidIng = new Order(invalidIngredients);
-    Order newOrderWithoutIngredients = new Order(emptyIngredients);
+    Order newOrderWithInvalidIng = new Order(List.of(
+            new Ingredient(RandomGenerator.randomIngredient()),
+            new Ingredient(RandomGenerator.randomIngredient())));
+
+    Order newOrderWithoutIngredients = new Order(List.of());
 
     @Before
     public void setUp(){
@@ -40,7 +41,8 @@ public class CreateOrderTests extends Steps {
     public void checkCreateOrderWithCorrectIngAndWithAuth() {
         Response createdUserResponse = createUser(newUser);
         setTokenToCreatedUser(createdUserResponse, newUser);
-        Response createdOrderResponse = createOrderWithAuth(newOrderWithValidIng,newUser);
+        Order orderWithAll = deserializedIngredients();
+        Response createdOrderResponse = createOrderWithAuth(orderWithAll,newUser);
         ensureStatusCode200(createdOrderResponse);
         ensureResponseBodyNewOrder(createdOrderResponse);
     }
@@ -49,10 +51,21 @@ public class CreateOrderTests extends Steps {
     @DisplayName("Создание заказа с валидными данными без авторизации")
     @Description("Можно создать заказ с валидными данными без авторизации, код ответа 200 и в теле отображается заказ")
     public void checkCreateOrderWithCorrectIngAndWithoutAuth(){
-        Response createdOrderResponse = createOrderWithoutAuth(newOrderWithValidIng);
+        Order orderWithAll = deserializedIngredients();
+        Response createdOrderResponse = createOrderWithoutAuth(orderWithAll);
         ensureStatusCode200(createdOrderResponse);
         ensureResponseBodyNewOrder(createdOrderResponse);
     }
+
+//    @Test
+//    @DisplayName("Создание заказа с валидными данными без авторизации")
+//    @Description("Можно создать заказ с валидными данными без авторизации, код ответа 200 и в теле отображается заказ")
+//    public void checkCreateOrderWithCorrectIngAndWithoutAuth(){
+//        Order orderWithAll = deserializedIngredients();
+//        Response createdOrderResponse = createOrderWithoutAuth(orderWithAll);
+//        ensureStatusCode200(createdOrderResponse);
+//        ensureResponseBodyNewOrder(createdOrderResponse);
+//    }
 
     @Test
     @DisplayName("Создание заказа с невалидными данными и авторизацией")

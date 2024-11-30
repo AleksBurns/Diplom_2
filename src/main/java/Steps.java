@@ -1,10 +1,10 @@
-import constants.IApiRoutes;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 import models.Order;
 import models.User;
 
-import static constants.IApiRoutes.*;
+
+import static constants.Routes.*;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -107,12 +107,36 @@ public class Steps {
                 .and().body("message", equalTo("You should be authorised"));
     }
 
+    @Step("Десериализация списка ингредиентов из базы данных в заказ")
+    public Order deserializedIngredients(){
+        return given()
+                .header("content-type","application/json")
+                .get(INGREDIENTS_ROUTE)
+                .as(Order.class);
+    }
+
+//    @Step("Создание заказа без авторизации")
+//    public Response createSerializedOrder(Order order){
+//        return given()
+//                .header("Content-type", "Application/json")
+//                .body(order.serialized())
+//                .post(ORDERS_ROUTE);
+//    }
+
     @Step("Создание заказа с авторизацией")
     public Response createOrderWithAuth(Order order, User createdUser){
         return given()
                 .header("Content-type", "Application/json")
                 .auth().oauth2(createdUser.getAccessToken().replace("Bearer ", ""))
-                .body(order)
+                .body(order.serialize())
+                .post(ORDERS_ROUTE);
+    }
+
+    @Step("Создание заказа без авторизации")
+    public Response createOrderWithoutAuth(Order order){
+        return given()
+                .header("Content-type", "Application/json")
+                .body(order.serialize())
                 .post(ORDERS_ROUTE);
     }
 
@@ -121,14 +145,6 @@ public class Steps {
         response.then().assertThat()
                 .body("success", equalTo(true))
                 .and().body("order", notNullValue());
-    }
-
-    @Step("Создание заказа без авторизации")
-    public Response createOrderWithoutAuth(Order order){
-        return given()
-                .header("Content-type", "Application/json")
-                .body(order)
-                .post(IApiRoutes.ORDERS_ROUTE);
     }
 
     @Step("Проверка ошибки тела ответа при создании заказа без ингредиентов")

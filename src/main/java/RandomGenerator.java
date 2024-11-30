@@ -1,5 +1,6 @@
 import models.User;
 
+import java.util.List;
 import java.util.Random;
 
 public class RandomGenerator {
@@ -48,7 +49,7 @@ public class RandomGenerator {
                 randomString(10),
                 null);
     }
-    public static void randomIngredientId(){
-        randomString(24);
+    public static List<String> randomIngredientsList(){
+        return List.of(randomString(24), randomString(24));
     }
 }
