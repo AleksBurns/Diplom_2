@@ -1,30 +1,40 @@
+
 package models;
 
 import java.util.List;
 
 public class Order {
-    private List<String> ingredients;
-    private String name;
+    private List<Ingredient> data;
 
-    public Order(List<String> ingredients) {
-        this.ingredients = ingredients;
-    }
-    public void setIngredients(List<String> ingredients) {
-        this.ingredients = ingredients;
+    public List<Ingredient> getData() {
+        return this.data;
     }
 
-    public List<String> getIngredients() {
-        return ingredients;
-    }
-    public String getName() {
-        return name;
+    public void setData(List<Ingredient> data) {
+        this.data = data;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Order(List<Ingredient> data) {
+        this.data = data;
     }
-    public Order(List<String> ingredients, String name, Order order) {
-        this.ingredients = ingredients;
-        this.name = name;
+
+    public Order() {
+    }
+
+    public String serialize() {
+        if (this.data == null) {
+            return "";
+        } else {
+            StringBuilder resultString = new StringBuilder("{\"ingredients\" :[");
+
+            for(int i = 0; i < this.data.size(); ++i) {
+                resultString.append("\"").append(((Ingredient)this.data.get(i)).get_id()).append("\"");
+                if (this.data.size() > 1 && i != this.data.size() - 1) {
+                    resultString.append(", ");
+                }
+            }
+            resultString.append("]}");
+            return resultString.toString();
+        }
     }
 }

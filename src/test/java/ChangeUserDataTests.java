@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import static constants.Routes.*;
 
-
 /**
  * Изменение данных пользователя:
  * с авторизацией,

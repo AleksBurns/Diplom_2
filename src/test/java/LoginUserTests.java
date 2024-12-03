@@ -18,7 +18,6 @@ import static constants.Routes.*;
 public class LoginUserTests extends Steps{
     User newUser = RandomGenerator.randomUser();
 
-
     @Before
     public void setUp(){
         RestAssured.baseURI = BASE_URI;

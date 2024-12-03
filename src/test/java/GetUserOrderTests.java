@@ -11,13 +11,14 @@ import org.junit.Test;
 import java.util.List;
 
 import static constants.Routes.*;
+
 /**
  * Получение заказов конкретного пользователя:
  * авторизованный пользователь,
  * неавторизованный пользователь.
  */
+
 public class GetUserOrderTests extends Steps {
-//    private final List<String> validIngredients = List.of("61c0c5a71d1f82001bdaaa72", "61c0c5a71d1f82001bdaaa6e");
     private List<Ingredient> validIngredients;
     User newUser = RandomGenerator.randomUser();
     Order newOrder = new Order(validIngredients);

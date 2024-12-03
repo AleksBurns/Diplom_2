@@ -57,16 +57,6 @@ public class CreateOrderTests extends Steps {
         ensureResponseBodyNewOrder(createdOrderResponse);
     }
 
-//    @Test
-//    @DisplayName("Создание заказа с валидными данными без авторизации")
-//    @Description("Можно создать заказ с валидными данными без авторизации, код ответа 200 и в теле отображается заказ")
-//    public void checkCreateOrderWithCorrectIngAndWithoutAuth(){
-//        Order orderWithAll = deserializedIngredients();
-//        Response createdOrderResponse = createOrderWithoutAuth(orderWithAll);
-//        ensureStatusCode200(createdOrderResponse);
-//        ensureResponseBodyNewOrder(createdOrderResponse);
-//    }
-
     @Test
     @DisplayName("Создание заказа с невалидными данными и авторизацией")
     @Description("Нельзя создать заказ с невалидными данными и авторизацией, код ответа 500")

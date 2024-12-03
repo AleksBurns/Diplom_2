@@ -115,14 +115,6 @@ public class Steps {
                 .as(Order.class);
     }
 
-//    @Step("Создание заказа без авторизации")
-//    public Response createSerializedOrder(Order order){
-//        return given()
-//                .header("Content-type", "Application/json")
-//                .body(order.serialized())
-//                .post(ORDERS_ROUTE);
-//    }
-
     @Step("Создание заказа с авторизацией")
     public Response createOrderWithAuth(Order order, User createdUser){
         return given()
