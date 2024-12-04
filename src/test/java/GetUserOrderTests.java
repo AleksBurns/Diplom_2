@@ -2,13 +2,11 @@ import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
-import models.Ingredient;
 import models.Order;
 import models.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import java.util.List;
 
 import static constants.Routes.*;
 
@@ -19,9 +17,8 @@ import static constants.Routes.*;
  */
 
 public class GetUserOrderTests extends Steps {
-    private List<Ingredient> validIngredients;
     User newUser = RandomGenerator.randomUser();
-    Order newOrder = new Order(validIngredients);
+    Order newOrder = new Order();
 
     @Before
     public void setUp(){
